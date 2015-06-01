@@ -1,0 +1,19 @@
+{
+  "name": "angular-addresses",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GregDick/Angular-Addresses"
+  },
+  "author": "Greg Dick <gregory.j.dick@vanderbilt.edu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GregDick/Angular-Addresses/issues"
+  },
+  "homepage": "https://github.com/GregDick/Angular-Addresses"
+}
