@@ -1,25 +1,92 @@
 angular
-  .module('angularAddresses', [])
+  .module('angularAddresses', ['ngRoute'])
 
-  .controller('Main', function(){
+  .config(function($routeProvider){
+    $routeProvider
+      .when('/', {
+        templateUrl: 'views/landing.html'
+      })
+      .when('/contact', {
+        templateUrl: 'views/contact.html'
+      })
+      .when('/about', {
+        templateUrl: 'views/about.html'
+      })
+      .when('/people', {
+        templateUrl: 'views/people.html',
+        controller: 'Main',
+        controllerAs: 'main'
+      })
+      .when('/people/:id', {
+        templateUrl: 'views/person.html',
+        controller: 'PersonController',
+        controllerAs: 'person'
+      })
+      .otherwise({
+        templateUrl: 'views/404.html'
+      });
+  })
+
+  .filter('objToArr', function () {
+    return function (obj) {
+      if (obj) {
+        return Object
+          .keys(obj)
+          .map(function (key) {
+            obj[key]._id = key;
+            return obj[key];
+          });
+      }
+    }
+  })
+
+  .filter('ransomcase', function(){
+    return function(string){
+      return string
+        .split('')
+        .map(function(character, i){
+          return i%2 ? character.toUpperCase() : character.toLowerCase();
+        })
+        .join('');
+    }
+  })
+
+  .controller('PersonController', function ($http, $routeParams) {
     var vm = this;
-    vm.people = [
-    {name: 'Earth', twitter: '@CaptainPlanet', number: '(123)555-1111', photo:'http://i.imgur.com/fsw9I8V.gif'},
-    {name: 'Greg', twitter: '@Greg', number: '(123)555-2222', photo:'http://i.imgur.com/uTONfVS.jpg'},
-    {name: 'Shmoe', twitter: '@JoeShmoe', number: '(123)555-3333', photo:'http://i.imgur.com/yLCfE5l.jpg'},
-    {name: 'Alan', twitter: '@Rickman_Alan', number: '(123)867-5309', photo:'http://i.imgur.com/AAuJNDl.jpg'},
-    {name: "Bradley", twitter: '@B_rad', number: '(123)555-5555', photo:'http://i.imgur.com/Vo0pllf.jpg'}
-    ];
+    var id = $routeParams.id;
+
+    $http
+      .get(`https://angleadresses.firebaseio.com/people/${id}.json`)
+      .success(function (data) {
+        vm.data = data;
+      });
+  })
+
+  .controller('Main', function($http){
+    var vm = this;
+
+    $http
+      .get('https://angleadresses.firebaseio.com/people.json')
+      .success(function (data) {
+        vm.people = data;
+      });
 
     vm.newPerson = {};
 
-    vm.addNewAddress = function(){
-      vm.people.push(vm.newPerson);
-      vm.newPerson = {};
+    vm.addNewAddress = function () {
+      $http
+        .post('https://angleadresses.firebaseio.com/people.json', vm.newPerson)
+        .success(function (res) {
+          vm.people[res.name] = vm.newPerson;
+          vm.newPerson = {};
+        });
     };
 
-    vm.removeAddress = function(person){
-      var index = vm.people.indexOf(person);
-      vm.people.splice(index, 1);
-    }
+    vm.removeAddress = function (id) {
+      $http
+        .delete(`https://angleadresses.firebaseio.com/people/${id}.json`)
+        .success(function () {
+          delete vm.people[id]
+        });
+    };
 });
